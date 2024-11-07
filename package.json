@@ -9,8 +9,8 @@
     "lint:fix": "eslint . --fix",
     "test": "jest --watch --runInBand",
     "prepare": "husky",
-    "dev:docker":"docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=development auth-service:dev"
-    
+    "dev:docker": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=development auth-service:dev",
+    "pg:run": "docker run --rm --name auth-service-pg-container -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -v auth-service-pg-data:/var/lib/postgresql/data -p 5432:5432 -d postgres"
   },
   "author": "",
   "license": "ISC",
@@ -39,12 +39,16 @@
     "express": "^4.21.1",
     "http-errors": "^2.0.0",
     "jest": "^29.7.0",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
     "supertest": "^7.0.0",
+    "typeorm": "^0.3.20",
     "winston": "^3.16.0"
   },
-
   "lint-staged": {
-    "*.ts": ["npm run format:fix","npm run lint:fix"]
+    "*.ts": [
+      "npm run format:fix",
+      "npm run lint:fix"
+    ]
   }
-  
 }
