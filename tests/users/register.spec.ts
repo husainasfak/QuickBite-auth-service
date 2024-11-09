@@ -2,8 +2,9 @@ import request from 'supertest'
 import app from '../../src/app'
 import { DataSource } from 'typeorm'
 import { AppDataSource } from '../../src/config/data-source'
-import { truncateTable } from '../utils'
+
 import { User } from '../../src/entity/User'
+import { Roles } from '../../src/constants'
 
 describe('POST /auth/register', () => {
     let connection: DataSource
@@ -15,7 +16,8 @@ describe('POST /auth/register', () => {
         // truncate db
         // Each test must run in isolation
         // so clearning db is must
-        await truncateTable(connection)
+        await connection.dropDatabase()
+        await connection.synchronize()
     })
 
     afterAll(async () => {
@@ -105,6 +107,26 @@ describe('POST /auth/register', () => {
             const repository = connection.getRepository(User)
             const users = await repository.find()
             expect((res.body as Record<string, string>).id).toBe(users[0].id)
+        })
+
+        it('should assign a customer role', async () => {
+            // AAA
+            // Arrange
+            const userData = {
+                firstName: 'Jhon',
+                lastName: 'Doe',
+                email: 'jd@work.com',
+                password: 'secret',
+            }
+
+            // Act
+            const res = await request(app).post('/auth/register').send(userData)
+
+            // Assert
+            const repository = connection.getRepository(User)
+            const users = await repository.find()
+            expect(users[0]).toHaveProperty('role')
+            expect(users[0].role).toBe(Roles.CUSTOMER)
         })
     })
 
