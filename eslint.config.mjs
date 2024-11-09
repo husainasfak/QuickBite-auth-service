@@ -12,20 +12,22 @@ export default tseslint.config(
             'node_modules',
             'eslint.config.mjs',
             'jest.config.js',
-        ],
+            '**/*.spec.ts',
+            'tests'
+        ]
     },
     {
         languageOptions: {
             parserOptions: {
                 project: true,
-                tsconfigRootDir: import.meta.dirname,
-            },
+                tsconfigRootDir: import.meta.dirname
+            }
         },
         rules: {
             'no-console': 'warn',
             '@typescript-eslint/no-unused-vars': 'error',
             '@typescript-eslint/no-misused-promises': 'off',
-            '@typescript-eslint/require-await': 'warn',
-        },
-    },
+            '@typescript-eslint/require-await': 'warn'
+        }
+    }
 )

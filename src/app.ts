@@ -1,14 +1,17 @@
+import 'reflect-metadata'
 import express, { NextFunction, Request, Response } from 'express'
 import logger from './config/logger'
-import createHttpError, { HttpError } from 'http-errors'
+import { HttpError } from 'http-errors'
 import authRouter from './routes/auth'
-import 'reflect-metadata'
+
 const app = express()
 
-app.get('/error', async (req, res, next) => {
-    const err = createHttpError(401, 'Unauth')
-    next(err)
-})
+app.use(express.json())
+
+// app.get('/error', async (req, res, next) => {
+//     const err = createHttpError(401, 'Unauth')
+//     next(err)
+// })
 app.get('/', (req, res) => {
     res.status(200).send('Hello')
 })
