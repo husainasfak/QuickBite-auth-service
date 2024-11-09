@@ -128,6 +128,52 @@ describe('POST /auth/register', () => {
             expect(users[0]).toHaveProperty('role')
             expect(users[0].role).toBe(Roles.CUSTOMER)
         })
+
+        it('should store the hashed password in the db', async () => {
+            // AAA
+            // Arrange
+            const userData = {
+                firstName: 'Jhon',
+                lastName: 'Doe',
+                email: 'jd@work.com',
+                password: 'secret',
+            }
+
+            // Act
+            await request(app).post('/auth/register').send(userData)
+
+            // Assert
+            const repository = connection.getRepository(User)
+            const users = await repository.find()
+
+            expect(users[0].password).not.toBe(userData.password)
+
+            // check hashed cases
+            expect(users[0].password).toHaveLength(60)
+            expect(users[0].password).toMatch(/^\$2b\$\d+\$/)
+        })
+
+        it('should return 400 status code if email is already exists', async () => {
+            // AAA
+            // Arrange
+            const userData = {
+                firstName: 'Jhon',
+                lastName: 'Doe',
+                email: 'jd@work.com',
+                password: 'secret',
+            }
+            const repository = connection.getRepository(User)
+            await repository.save({ ...userData, role: Roles.CUSTOMER })
+
+            // Act
+            const res = await request(app).post('/auth/register').send(userData)
+
+            const users = await repository.find()
+            // Assert
+
+            expect(res.statusCode).toBe(400)
+            expect(users).toHaveLength(1)
+        })
     })
 
     describe('fields are mission', () => {})
