@@ -35,4 +35,12 @@ export class UserService {
             throw error
         }
     }
+
+    async findByEmail(email: string) {
+        return await this.userRepo.findOne({
+            where: {
+                email,
+            },
+        })
+    }
 }

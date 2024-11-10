@@ -8,11 +8,14 @@ import { validationResult } from 'express-validator'
 import { JwtPayload } from 'jsonwebtoken'
 
 import { TokenService } from '../services/Token.service'
+import createHttpError from 'http-errors'
+import { CredentialService } from '../services/Credential.service'
 export class AuthController {
     constructor(
         private userService: UserService,
         private logger: Logger,
         private tokenService: TokenService,
+        private credentialService: CredentialService,
     ) {}
     async register(
         req: RegisterUserRequest,
@@ -71,6 +74,92 @@ export class AuthController {
                 maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
                 httpOnly: true,
             })
+
+            this.logger.info('User have been registered', { id: user.id })
+            res.status(201).json({ id: user.id })
+        } catch (err) {
+            next(err)
+            return
+        }
+    }
+    async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
+        const result = validationResult(req)
+
+        if (!result.isEmpty()) {
+            return res.status(400).json({
+                errors: result.array(),
+            })
+        }
+
+        const { email, password } = req.body
+
+        this.logger.debug('New Request to login a user', {
+            email,
+            password: '************',
+        })
+
+        try {
+            // check user email exsits in db
+            const user = await this.userService.findByEmail(email)
+
+            if (!user) {
+                const error = createHttpError(
+                    400,
+                    'Email or password does not match',
+                )
+
+                next(error)
+                return
+            }
+
+            // check password
+
+            const passwordMatch = this.credentialService.comparePassword(
+                password,
+                user.password,
+            )
+
+            if (!passwordMatch) {
+                const error = createHttpError(
+                    400,
+                    'Email or password does not match',
+                )
+
+                next(error)
+                return
+            }
+
+            // generate token
+
+            const payload: JwtPayload = {
+                sub: String(user.id),
+                role: user.role,
+            }
+
+            const accessToken = this.tokenService.generateAccessToken(payload)
+
+            const savedRefreshToken =
+                await this.tokenService.persistRefreshToken(user)
+
+            const refreshToken = this.tokenService.genrateRefreshToken({
+                ...payload,
+                id: String(savedRefreshToken.id),
+            })
+
+            res.cookie('accessToken', accessToken, {
+                domain: 'localhost',
+                sameSite: 'strict',
+                maxAge: 1000 * 60 * 60, // 1h
+                httpOnly: true,
+            })
+            res.cookie('refreshToken', refreshToken, {
+                domain: 'localhost',
+                sameSite: 'strict',
+                maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
+                httpOnly: true,
+            })
+
+            this.logger.info('User have been logged in')
             res.status(201).json({ id: user.id })
         } catch (err) {
             next(err)
