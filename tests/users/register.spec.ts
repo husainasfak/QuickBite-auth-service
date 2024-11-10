@@ -5,6 +5,7 @@ import { AppDataSource } from '../../src/config/data-source'
 
 import { User } from '../../src/entity/User'
 import { Roles } from '../../src/constants'
+import { isJwt } from '../utils'
 
 describe('POST /auth/register', () => {
     let connection: DataSource
@@ -173,6 +174,44 @@ describe('POST /auth/register', () => {
 
             expect(res.statusCode).toBe(400)
             expect(users).toHaveLength(1)
+        })
+
+        it('should return the access and refresh token inside  a cookie', async () => {
+            // AAA
+            // Arrange
+            const userData = {
+                firstName: 'Jhon',
+                lastName: 'Doe',
+                email: 'jd@work.com',
+                password: 'secret',
+            }
+
+            interface Headers {
+                ['set-cookie']: string[]
+            }
+            // Act
+            let accessToken: string | null = null
+            let refreshToken: string | null = null
+            const res = await request(app).post('/auth/register').send(userData)
+
+            // Assert
+            const cookies =
+                (res.headers as unknown as Headers)['set-cookie'] || []
+
+            cookies.forEach((cookie) => {
+                if (cookie.startsWith('accessToken=')) {
+                    accessToken = cookie.split(';')[0].split('=')[1]
+                }
+                if (cookie.startsWith('refreshToken=')) {
+                    refreshToken = cookie.split(';')[0].split('=')[1]
+                }
+            })
+
+            expect(accessToken).not.toBe(null)
+            expect(refreshToken).not.toBe(null)
+            console.log(accessToken)
+            expect(isJwt(accessToken)).toBeTruthy()
+            // expect(isJwt(refreshToken)).toBeTruthy()
         })
     })
 
