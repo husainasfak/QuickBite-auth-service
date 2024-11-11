@@ -92,6 +92,45 @@ describe('GET /auth/self', () => {
                 createdUser.id,
             )
         })
+
+        it('should not the password field in user data', async () => {
+            // AAA
+            // Arrange
+            const userData = {
+                firstName: 'Rakesh',
+                lastName: 'K',
+                email: 'rakesh@mern.space',
+                password: 'secret',
+            }
+            // Register data
+            const userRepo = connection.getRepository(User)
+
+            const createdUser = await userRepo.save({
+                ...userData,
+                role: Roles.CUSTOMER,
+            })
+
+            // Generate token
+
+            const accessToken = jwks.token({
+                sub: String(createdUser.id),
+                role: createdUser.role,
+            })
+
+            // Add token to cookie
+
+            // Act
+            const response = await request(app)
+                .get('/auth/self')
+                .set('Cookie', [`accessToken=${accessToken};`])
+                .send()
+
+            // Assert
+            // Check if user id matches with registered user
+            expect(response.body as Record<string, string>).not.toHaveProperty(
+                'password',
+            )
+        })
     })
 })
 
