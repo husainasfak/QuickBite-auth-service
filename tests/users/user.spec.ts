@@ -12,7 +12,7 @@ describe('GET /auth/self', () => {
     let jwks: ReturnType<typeof createJWKSMock>
 
     beforeAll(async () => {
-        jwks = createJWKSMock('http://localhost:5501')
+        jwks = createJWKSMock('http://localhost:5555')
         connection = await AppDataSource.initialize()
     })
 
@@ -130,6 +130,31 @@ describe('GET /auth/self', () => {
             expect(response.body as Record<string, string>).not.toHaveProperty(
                 'password',
             )
+        })
+
+        it('should return 401 status if token does not exist', async () => {
+            // AAA
+            // Arrange
+            const userData = {
+                firstName: 'Rakesh',
+                lastName: 'K',
+                email: 'rakesh@mern.space',
+                password: 'secret',
+            }
+            // Register data
+            const userRepo = connection.getRepository(User)
+
+            const createdUser = await userRepo.save({
+                ...userData,
+                role: Roles.CUSTOMER,
+            })
+
+            // Act
+            const response = await request(app).get('/auth/self').send()
+
+            // Assert
+            // Check if user id matches with registered user
+            expect(response.statusCode).toBe(401)
         })
     })
 })
