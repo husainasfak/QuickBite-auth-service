@@ -38,15 +38,17 @@ describe('GET /auth/self', () => {
         it('should return the 200 status code', async () => {
             // AAA
             // Arrange
-            
+
             const accessToken = jwks.token({
                 sub: '123321',
                 role: Roles.CUSTOMER,
             })
 
-
             // Act
-            const response = await request(app).get('/auth/self').set('Cookie', [`accessToken=${accessToken};`]).send()
+            const response = await request(app)
+                .get('/auth/self')
+                .set('Cookie', [`accessToken=${accessToken};`])
+                .send()
 
             // Assert
             expect(response.statusCode).toBe(200)

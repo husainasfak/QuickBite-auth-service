@@ -20,10 +20,9 @@ export type AuthCookie = {
     refreshToken: string
 }
 
-
-export interface AuthRequest extends Request{
-    auth:{
-        sub:number;
-        role:string
+export interface AuthRequest extends Request {
+    auth: {
+        sub: number
+        role: string
     }
 }
