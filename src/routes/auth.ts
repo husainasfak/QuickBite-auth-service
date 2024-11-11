@@ -50,13 +50,13 @@ router.post('/login', loginValidators, (async (
 router.get(
     '/self',
     authenticate as RequestHandler,
-    (
+    (async (
         req: Request,
         res: Response,
         // next: NextFunction,
     ) => {
-        authController.self(req as AuthRequest, res)
-    },
+        await authController.self(req as AuthRequest, res)
+    }) as RequestHandler,
 )
 
 export default router
