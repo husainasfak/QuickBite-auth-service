@@ -10,6 +10,7 @@ import { JwtPayload } from 'jsonwebtoken'
 import { TokenService } from '../services/Token.service'
 import createHttpError from 'http-errors'
 import { CredentialService } from '../services/Credential.service'
+
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -219,6 +220,22 @@ export class AuthController {
 
             this.logger.info('User have been logged in')
             res.json({ user: user.id })
+        } catch (err) {
+            next(err)
+            return
+        }
+    }
+
+    async logout(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            await this.tokenService.deleteRefreshToken(Number(req.auth.id))
+            this.logger.info('User has been logged out', { id: req.auth.sub })
+            res.clearCookie('accessToken')
+            res.clearCookie('refreshToken')
+
+            return res.json({
+                success: true,
+            })
         } catch (err) {
             next(err)
             return

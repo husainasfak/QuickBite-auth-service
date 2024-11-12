@@ -18,6 +18,7 @@ import authenticate from '../middlewares/authenticate'
 import { AuthRequest } from '../types'
 
 import validateRefreshToken from '../middlewares/validateRefreshToken'
+import parseRefreshToken from '../middlewares/parseRefreshToken'
 
 const router = express.Router()
 const userRepo = AppDataSource.getRepository(User)
@@ -66,6 +67,15 @@ router.post(
     validateRefreshToken as RequestHandler,
     (async (req: Request, res: Response, next: NextFunction) => {
         await authController.refresh(req as AuthRequest, res, next)
+    }) as RequestHandler,
+)
+
+router.post(
+    '/logout',
+    authenticate as RequestHandler,
+    parseRefreshToken as RequestHandler,
+    (async (req: Request, res: Response, next: NextFunction) => {
+        await authController.logout(req as AuthRequest, res, next)
     }) as RequestHandler,
 )
 
