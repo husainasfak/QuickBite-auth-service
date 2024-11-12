@@ -12,7 +12,12 @@
         "dev:docker": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=development auth-service:dev",
         "pg:run": "docker run --rm --name auth-service-pg-container -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -v auth-service-pg-data:/var/lib/postgresql/data -p 5432:5432 -d postgres",
         "start": "ts-node src/index.ts",
-        "typeorm": "typeorm-ts-node-commonjs"
+        "migration:generate": "typeorm-ts-node-commonjs migration:generate",
+        "migration:generate:run":"npm run migration:generate -- src/migration/migration -d src/config/data-source.ts",
+        "migration:run":"typeorm-ts-node-commonjs migration:run",
+        "migration:run:run":"npm run migration:run -- -d src/config/data-source.ts",
+
+        "migration:create":"typeorm-ts-node-commonjs migration:create"
     },
     "author": "",
     "license": "ISC",
