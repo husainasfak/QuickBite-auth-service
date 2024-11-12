@@ -22,7 +22,12 @@ export type AuthCookie = {
 
 export interface AuthRequest extends Request {
     auth: {
+        id?: string
         sub: number
         role: string
     }
+}
+
+export interface IRefreshTokenPayload {
+    id: string
 }

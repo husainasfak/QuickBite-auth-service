@@ -17,6 +17,8 @@ import { CredentialService } from '../services/Credential.service'
 import authenticate from '../middlewares/authenticate'
 import { AuthRequest } from '../types'
 
+import validateRefreshToken from '../middlewares/validateRefreshToken'
+
 const router = express.Router()
 const userRepo = AppDataSource.getRepository(User)
 const tokenRepo = AppDataSource.getRepository(RefreshToken)
@@ -56,6 +58,14 @@ router.get(
         // next: NextFunction,
     ) => {
         await authController.self(req as AuthRequest, res)
+    }) as RequestHandler,
+)
+
+router.post(
+    '/refresh',
+    validateRefreshToken as RequestHandler,
+    (async (req: Request, res: Response, next: NextFunction) => {
+        await authController.refresh(req as AuthRequest, res, next)
     }) as RequestHandler,
 )
 
