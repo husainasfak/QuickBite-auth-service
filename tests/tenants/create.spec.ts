@@ -11,7 +11,7 @@ import { Tenant } from '../../src/entity/Tenant'
 describe('GET /tenants', () => {
     let connection: DataSource
     let jwks: ReturnType<typeof createJWKSMock>
-
+    let AdminToken: string
     beforeAll(async () => {
         jwks = createJWKSMock('http://localhost:5555')
         connection = await AppDataSource.initialize()
@@ -24,16 +24,19 @@ describe('GET /tenants', () => {
         jwks.start()
         await connection.dropDatabase()
         await connection.synchronize()
-    })
-
-    afterEach(() => {
-        jwks.stop()
+        AdminToken = jwks.token({
+            sub: '1',
+            role: Roles.ADMIN,
+        })
     })
 
     afterAll(async () => {
         await connection.destroy()
     })
 
+    afterEach(() => {
+        jwks.stop()
+    })
     describe('Given all fields', () => {
         it('should return a 201 status code', async () => {
             // AAA
@@ -42,8 +45,12 @@ describe('GET /tenants', () => {
                 name: 'Tenant Name',
                 address: 'Tenant Address',
             }
+
             // Act
-            const response = await request(app).post('/tenant').send(tenantData)
+            const response = await request(app)
+                .post('/tenant')
+                .set('Cookie', [`accessToken=${AdminToken}`])
+                .send(tenantData)
 
             // Assert
             // Check if user id matches with registered user
@@ -58,14 +65,37 @@ describe('GET /tenants', () => {
                 address: 'Tenant Address',
             }
             // Act
-            const response = await request(app).post('/tenant').send(tenantData)
+            const response = await request(app)
+                .post('/tenant')
+                .set('Cookie', [`accessToken=${AdminToken}`])
+                .send(tenantData)
 
             const tenantRepo = connection.getRepository(Tenant)
             const tenant = await tenantRepo.find()
             // Assert
-            // Check if user id matches with registered user
+
             expect(tenant).toHaveLength(1)
             expect(tenant[0].name).toBe(tenantData.name)
+        })
+
+        it('should return 401 if user is not authenticated', async () => {
+            // AAA
+            // Arrange
+            const tenantData = {
+                name: 'Tenant Name',
+                address: 'Tenant Address',
+            }
+            // Act
+            const response = await request(app).post('/tenant').send(tenantData)
+
+            // Assert
+
+            expect(response.statusCode).toBe(401)
+
+            const tenantRepo = connection.getRepository(Tenant)
+            const tenant = await tenantRepo.find()
+
+            expect(tenant).toHaveLength(0)
         })
     })
 })
