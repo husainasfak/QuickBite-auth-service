@@ -6,7 +6,7 @@ import { Roles } from '../constants'
 import bcrypt from 'bcrypt'
 export class UserService {
     constructor(private userRepo: Repository<User>) {}
-    async create({ firstName, lastName, email, password }: UserData) {
+    async create({ firstName, lastName, email, password, role }: UserData) {
         // Check duplicate email
 
         const user = await this.userRepo.findOne({ where: { email } })
@@ -25,7 +25,7 @@ export class UserService {
                 lastName,
                 email,
                 password: hashedPassword,
-                role: Roles.CUSTOMER,
+                role: role || Roles.CUSTOMER,
             })
         } catch (err) {
             const error = createHttpError(
