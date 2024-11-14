@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import logger from './config/logger'
 import { HttpError } from 'http-errors'
 import authRouter from './routes/auth'
+import tenantRoutes from './routes/tenant'
 import cookieParser from 'cookie-parser'
 const app = express()
 
@@ -19,7 +20,9 @@ app.get('/', (req, res) => {
     res.status(200).send('Hello')
 })
 
+// Routes
 app.use('/auth', authRouter)
+app.use('/tenant', tenantRoutes)
 // Global Error Handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {

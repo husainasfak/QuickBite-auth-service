@@ -31,3 +31,13 @@ export interface AuthRequest extends Request {
 export interface IRefreshTokenPayload {
     id: string
 }
+
+// Tenant types
+export interface ITenant {
+    name: string
+    address: string
+}
+
+export interface TenantRequest extends Request {
+    body: ITenant
+}
