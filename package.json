@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "build": "tsc",
+        "build-dev": "cp .env.dev ./dist/.env.dev && tsc",
         "start:build": "cross-env NODE_ENV=dev node dist/src/server.js",
         "dev": "cross-env NODE_ENV=dev nodemon src/server.ts",
         "format:fix": "prettier . --write",

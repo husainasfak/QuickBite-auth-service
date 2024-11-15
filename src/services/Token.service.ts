@@ -1,6 +1,4 @@
 import { JwtPayload, sign } from 'jsonwebtoken'
-import fs from 'fs'
-import path from 'path'
 import createHttpError from 'http-errors'
 import { Config } from '../config'
 import { RefreshToken } from '../entity/RefreshToken'
@@ -9,11 +7,17 @@ import { Repository } from 'typeorm'
 export class TokenService {
     constructor(private refreshTokenRepo: Repository<RefreshToken>) {}
     generateAccessToken(payload: JwtPayload) {
-        let privateKey: Buffer
+        let privateKey: string
         try {
-            privateKey = fs.readFileSync(
-                path.join(__dirname, '../../certs/private.pem'),
-            )
+            // privateKey = fs.readFileSync(
+            //     path.join(__dirname, '../../certs/private.pem'),
+            // )
+            if (!Config.PRIVATE_KEY) {
+                const error = createHttpError(500, 'Could not find SECRET_KEY')
+
+                throw error
+            }
+            privateKey = Config.PRIVATE_KEY
         } catch (err) {
             const error = createHttpError(
                 500,
