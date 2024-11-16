@@ -41,7 +41,7 @@ jobs:
         needs: build-and-test
         runs-on: ubuntu-latest
         env:
-            IMAGE_NAME: husainasfak/auth-service 
+            IMAGE_NAME: husainasfak/auth-service
             IMAGE_TAG: build-${{ github.run_number }} # husainasfak/auth-service:build-2
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         steps:
