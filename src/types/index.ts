@@ -46,3 +46,9 @@ export interface TenantRequest extends Request {
 export interface UserRequest extends Request {
     body: UserData
 }
+
+export interface TenantQueryParams {
+    q: string
+    perPage: number
+    currentPage: number
+}
