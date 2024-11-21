@@ -29,7 +29,7 @@ export default checkSchema({
         errorMessage: 'Tenant id is required!',
         trim: true,
         custom: {
-            options: async (value: string, { req }) => {
+            options: (value: string, { req }) => {
                 const role = (req as UpdateUserRequest).body.role
                 if (role === 'admin') {
                     return true
