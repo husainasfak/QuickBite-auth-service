@@ -7,6 +7,7 @@ import tenantRoutes from './routes/tenant'
 import userRoutes from './routes/user'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+// import { globalErrorHandler } from './middlewares/globalErrorHandler'
 const app = express()
 app.use(
     cors({
@@ -32,6 +33,8 @@ app.get('/', (req, res) => {
 app.use('/auth', authRouter)
 app.use('/tenant', tenantRoutes)
 app.use('/user', userRoutes)
+
+// app.use(globalErrorHandler)
 // Global Error Handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
