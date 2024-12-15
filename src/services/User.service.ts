@@ -25,7 +25,7 @@ export class UserService {
                 lastName,
                 email,
                 password: hashedPassword,
-                role: role || Roles.CUSTOMER,
+                role: role ?? Roles.CUSTOMER,
             })
         } catch (err) {
             const error = createHttpError(
@@ -48,6 +48,9 @@ export class UserService {
         return await this.userRepo.findOne({
             where: {
                 id,
+            },
+            relations: {
+                tenant: true,
             },
         })
     }
